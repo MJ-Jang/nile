@@ -242,6 +242,7 @@ def generate(args, model, tokenizer, prefix=""):
     directory, filename = os.path.split(args.eval_data_file)
     model_directory, model_name = os.path.split(os.path.normpath(args.output_dir))
     output_name = os.path.join(directory, '{}_{}'.format(model_name, filename))
+    print(output_name)
     eval_dataset.save(output_name)
 
 def evaluate(args, model, tokenizer, prefix=""):
