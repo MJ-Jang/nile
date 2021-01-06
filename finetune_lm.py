@@ -225,7 +225,6 @@ def generate(args, model, tokenizer, prefix=""):
 
     for index, batch in enumerate(tqdm(eval_dataloader, desc="Evaluating")):
         batch, prompt_lengths, total_lengths = batch
-        print(batch)
         batch = batch.squeeze()
         out = sample_sequence(
             model=model,
@@ -234,9 +233,8 @@ def generate(args, model, tokenizer, prefix=""):
             device=args.device,
             eos_token_id=tokenizer.convert_tokens_to_ids(EOS_TOKEN),
         )
-        print(out)
         out = out[0, len(batch):].tolist()
-        print(out)
+
         text = tokenizer.decode(out, clean_up_tokenization_spaces=True)
         text = text.split(EOS_TOKEN)[0].strip()
         eval_dataset.add_explanation(index, text)
