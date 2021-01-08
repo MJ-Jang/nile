@@ -29,6 +29,7 @@ if __name__ == '__main__':
     extractor = KnowledgeExtractor(
         "retrieve_knowledge/wordnet-mlj12-definitions.txt",
         "retrieve_knowledge/wordnet-mlj12-train.txt",
+        download_file=True
     )
 
     if args.dataset == 'snli':
