@@ -320,10 +320,6 @@ def main():
                         help="The output directory where the model predictions and checkpoints will be written.")
     parser.add_argument("--entity_file_path", default=None, type=str, required=True,
                         help="The entity file path")
-    parser.add_argument("--entity_dim", default=None, type=int, required=True,
-                        help="dimension of entity vectors")
-    parser.add_argument("--num_heads", default=8, type=int, required=True,
-                        help="number of heads for self attention layer")
 
     ## Other parameters
     parser.add_argument("--eval_data_file", default=None, type=str,
@@ -462,9 +458,9 @@ def main():
         new_tokens = [EXP_TOKEN, EOS_TOKEN]
         tokenizer.add_tokens(new_tokens)
         print ('#extended tokens', len(tokenizer))
-        model = model_class(config, entity_dim=args.entity_dim, num_heads=args.num_heads).from_pretrained(args.model_name_or_path,
-                                                                             from_tf=bool('.ckpt' in args.model_name_or_path), config=config,
-                                                                            cache_dir=args.cache_dir if args.cache_dir else None)
+        model = model_class(config).from_pretrained(args.model_name_or_path,
+                                                    from_tf=bool('.ckpt' in args.model_name_or_path), config=config,
+                                                    cache_dir=args.cache_dir if args.cache_dir else None)
         model.resize_token_embeddings(len(tokenizer))
         model.to(args.device)
 

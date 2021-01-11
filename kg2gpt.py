@@ -10,10 +10,11 @@ from transformers.models.gpt2.modeling_gpt2 import CausalLMOutputWithPastAndCros
 class KGGPT2LMHeadModel(GPT2PreTrainedModel):
     _keys_to_ignore_on_load_missing = [r"h\.\d+\.attn\.masked_bias", r"lm_head\.weight"]
 
-    def __init__(self, config, entity_dim: int, num_heads: int):
+    def __init__(self, config):
         super().__init__(config)
         self.config = config
-        self.entity_dim = entity_dim
+        entity_dim = 1000
+        num_heads = 8
 
         self.transformer = GPT2Model(config)
         self.entity_W = nn.Linear(entity_dim, config.n_embd, bias=False)
@@ -154,3 +155,18 @@ class KGGPT2LMHeadModel(GPT2PreTrainedModel):
             attentions=transformer_outputs.attentions,
             cross_attentions=transformer_outputs.cross_attentions,
         )
+
+from transformers import GPT2Config
+config = GPT2Config()
+model = KGGPT2LMHeadModel(config).from_pretrained('gpt2-medium')
+
+outp = model(input_ids=a.unsqueeze(0), entity_vecs=d.unsqueeze(0))
+model.entity_W
+
+l = nn.Linear(512, 768)
+l(d.float())
+
+batch, prompt_lengths, total_lengths = a, b, c
+max_length = torch.max(total_lengths).item()
+batch = batch[:, :max_length]
+inputs, labels = (batch, batch.clone().detach())
