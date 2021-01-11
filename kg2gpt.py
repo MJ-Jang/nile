@@ -128,7 +128,8 @@ class KGGPT2LMHeadModel(GPT2PreTrainedModel):
 
         kg_vec = self.entity_W(entity_vecs.float())
         new_hidden = hidden_states + kg_vec
-
+        print(hidden_states.size())
+        print(kg_vec.size())
         # multihead self attention
         attn_output, attn_output_weights = self.multiheadAttn(new_hidden, new_hidden, new_hidden)
 
