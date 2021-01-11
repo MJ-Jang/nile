@@ -14,7 +14,7 @@ cmd="CUDA_VISIBLE_DEVICES="$GPUDEV"  python finetune_kglm.py  \
     --num_train_epochs 3 \
     --train_data_file=./dataset_snli/"$DATAROOT"/train.tsv \
     --do_eval \
-    --eval_data_file=./dataset_snli/"$DATAROOT"/dev.tsv" \
+    --eval_data_file=./dataset_snli/"$DATAROOT"/dev.tsv \
     --entity_file_path=./retrieve_knowledge/RotatE_Wn18_512d.txt"
 echo $cmd
 eval $cmd
