@@ -155,18 +155,3 @@ class KGGPT2LMHeadModel(GPT2PreTrainedModel):
             attentions=transformer_outputs.attentions,
             cross_attentions=transformer_outputs.cross_attentions,
         )
-
-from transformers import GPT2Config
-config = GPT2Config()
-model = KGGPT2LMHeadModel(config).from_pretrained('gpt2-medium')
-
-outp = model(input_ids=a.unsqueeze(0), entity_vecs=d.unsqueeze(0))
-model.entity_W
-
-l = nn.Linear(512, 768)
-l(d.float())
-
-batch, prompt_lengths, total_lengths = a, b, c
-max_length = torch.max(total_lengths).item()
-batch = batch[:, :max_length]
-inputs, labels = (batch, batch.clone().detach())
