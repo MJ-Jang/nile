@@ -126,7 +126,7 @@ def train(args, train_dataset, model, tokenizer):
 
             inputs = inputs.to(args.device)
             labels = labels.to(args.device)
-            entity_vecs.to(args.device)
+            entity_vecs = entity_vecs.to(args.device)
 
             for idx in range(len(prompt_lengths)):
                 labels[idx, :prompt_lengths[idx]] = cross_entropy_ignore_index
