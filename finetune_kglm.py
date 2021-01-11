@@ -40,7 +40,7 @@ from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup,
                                   GPT2Config, GPT2LMHeadModel, GPT2Tokenizer)
 from kg2gpt import KGGPT2LMHeadModel
 
-from lm_utils import KGTSVDataset, EXP_TOKEN, EOS_TOKEN
+from lm_utils import KGTSVDataset, EXP_TOKEN, EOS_TOKEN, KGTSVDataset2
 
 logger = logging.getLogger(__name__)
 
@@ -222,9 +222,9 @@ def generate(args, model, tokenizer, prefix=""):
         args.length = MAX_LENGTH  # avoid infinite loop
 
     eval_output_dir = args.output_dir
-    eval_dataset = KGTSVDataset(tokenizer, args, file_path=args.eval_data_file,
-                                block_size=args.block_size, entity_vec_path=args.entity_file_path,
-                                get_annotations=False)
+    eval_dataset = KGTSVDataset2(tokenizer, args, file_path=args.eval_data_file,
+                                 block_size=args.block_size, entity_vec_path=args.entity_file_path,
+                                 get_annotations=False)
 
     eval_sampler = SequentialSampler(eval_dataset) if args.local_rank == -1 else DistributedSampler(eval_dataset)
     eval_dataloader = DataLoader(eval_dataset, sampler=eval_sampler, batch_size=1)
@@ -263,9 +263,9 @@ def generate(args, model, tokenizer, prefix=""):
 
 def evaluate(args, model, tokenizer, prefix=""):
     eval_output_dir = args.output_dir
-    eval_dataset = KGTSVDataset(tokenizer, args, file_path=args.eval_data_file,
-                                block_size=args.block_size, entity_vec_path=args.entity_file_path,
-                                get_annotations=False)
+    eval_dataset = KGTSVDataset2(tokenizer, args, file_path=args.eval_data_file,
+                                 block_size=args.block_size, entity_vec_path=args.entity_file_path,
+                                 get_annotations=False)
 
     if not os.path.exists(eval_output_dir) and args.local_rank in [-1, 0]:
         os.makedirs(eval_output_dir)
@@ -474,9 +474,9 @@ def main():
         if args.local_rank not in [-1, 0]:
             torch.distributed.barrier()  # Barrier to make sure only the first process in distributed training process the dataset, and the others will use the cache
 
-        train_dataset = KGTSVDataset(tokenizer, args, file_path=args.train_data_file,
-                                     entity_vec_path=args.entity_file_path,
-                                    block_size=args.block_size, get_annotations=True)
+        train_dataset = KGTSVDataset2(tokenizer, args, file_path=args.train_data_file,
+                                      entity_vec_path=args.entity_file_path,
+                                      block_size=args.block_size, get_annotations=True)
 
         if args.local_rank == 0:
             torch.distributed.barrier()
