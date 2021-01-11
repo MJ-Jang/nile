@@ -10,9 +10,9 @@ from transformers.models.gpt2.modeling_gpt2 import CausalLMOutputWithPastAndCros
 class KGGPT2LMHeadModel(GPT2PreTrainedModel):
     _keys_to_ignore_on_load_missing = [r"h\.\d+\.attn\.masked_bias", r"lm_head\.weight"]
 
-    def __init__(self, gpt_config, entity_dim: int, num_heads: int):
-        super().__init__(gpt_config)
-        self.config = gpt_config
+    def __init__(self, config, entity_dim: int, num_heads: int):
+        super().__init__(config)
+        self.config = config
         self.entity_dim = entity_dim
 
         self.transformer = GPT2Model(config)
