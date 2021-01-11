@@ -13,7 +13,7 @@ class KGGPT2LMHeadModel(GPT2PreTrainedModel):
     def __init__(self, config):
         super().__init__(config)
         self.config = config
-        entity_dim = 1000
+        entity_dim = 512
         num_heads = 8
 
         self.transformer = GPT2Model(config)
