@@ -48,7 +48,7 @@ MODEL_CLASSES = {
     'kggpt2': (GPT2Config, KGGPT2LMHeadModel, GPT2Tokenizer),
 }
 
-cross_entropy_ignore_index = -1
+cross_entropy_ignore_index = -100
 
 MAX_LENGTH = int(10000)  # Hardcoded max length to avoid infinite loop
 
@@ -133,8 +133,6 @@ def train(args, train_dataset, model, tokenizer):
                 labels[idx, :prompt_lengths[idx]] = cross_entropy_ignore_index
             model.train()
 
-            outputs = model(inputs, entity_vecs=entity_vecs)
-            print(outputs.logits.size())
             outputs = model(inputs, labels=labels, entity_vecs=entity_vecs)
             loss = outputs[0]  # model outputs are always tuple in transformers (see doc)
 
