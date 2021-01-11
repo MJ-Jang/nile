@@ -213,6 +213,7 @@ class KGTSVDataset2(Dataset):
         self.extractor = KnowledgeExtractor(
             "retrieve_knowledge/wordnet-mlj12-definitions.txt",
             "retrieve_knowledge/wordnet-mlj12-train.txt",
+            download_file=True
         ) # hardcoded
 
         self.tokenizer = tokenizer
@@ -246,23 +247,20 @@ class KGTSVDataset2(Dataset):
 
                 entity_vec_2 = self._extract_entity_vecs(text2, self.tokenizer, self.extractor, self.entity_embeddings)
                 entity_vec_2 = np.vstack([entity_vec_2, np.array([0]*self.entity_dim)]) # for eos token
+                entity_vec = np.vstack([entity_vec, entity_vec_2])
 
                 if total_length > self.block_size:
                     tokenized_text = tokenized_text[:self.block_size]
-                    entity_vec_2 = entity_vec_2[:self.block_size, :]
+                    entity_vec = entity_vec[:self.block_size, :]
 
                 if total_length < self.block_size:
                     len_diff = self.block_size - total_length
                     tokenized_text = tokenized_text + [self.eos_token_id] * len_diff
+
                     pad_vec = np.array([[0] * self.entity_dim] * len_diff)
-                    entity_vec_2 = np.vstack([entity_vec_2,pad_vec])
-
-                entity_vec = np.vstack([entity_vec, entity_vec_2])
-
-            if self.print_count > 0:
-                print('example: ', text1 + text2 if self.get_annotations else text1)
-                self.print_count = self.print_count - 1
+                    entity_vec = np.vstack([entity_vec, pad_vec])
             return (tokenized_text, prompt_length, total_length, entity_vec)
+
         tokenized_text, prompt_len, total_len, entity_vec = create_example(r)
         return torch.tensor(tokenized_text), prompt_len, total_len, torch.tensor(entity_vec)
 
