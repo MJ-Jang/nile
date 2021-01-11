@@ -2,8 +2,11 @@ import pandas as pd
 import os
 import pickle
 import torch
+import numpy as np
 
 from torch.utils.data import DataLoader, Dataset
+from retrieve_knowledge.utils import loadRotatEModel
+from retrieve_knowledge.extractor import KnowledgeExtractor
 
 EXP_TOKEN = '[EXP]'
 EOS_TOKEN = '[EOS]'
@@ -78,9 +81,19 @@ class TSVDataset(Dataset):
 
 
 class KGTSVDataset(Dataset):
-    def __init__(self, tokenizer, args, file_path='train', block_size=512, get_annotations=False):
+    def __init__(self, tokenizer, args, file_path='train',
+                 entity_vec_path=None, block_size=512, get_annotations=False):
         self.print_count = 5
         self.eos_token_id = tokenizer.convert_tokens_to_ids(EOS_TOKEN)
+
+        # entity_vec_path = 'retrieve_knowledge/RotatE_WN18_512d.txt'
+        entity_embeddings = loadRotatEModel(entity_vec_path) # add to the argument
+        self.entity_dim = entity_embeddings[list(entity_embeddings.keys())[0]].shape[0]
+
+        extractor = KnowledgeExtractor(
+            "retrieve_knowledge/wordnet-mlj12-definitions.txt",
+            "retrieve_knowledge/wordnet-mlj12-train.txt",
+        ) # hardcoded
 
         cached_features_file, data = self.load_data(file_path, block_size)
         self.data = data
@@ -100,20 +113,36 @@ class KGTSVDataset(Dataset):
             tokenized_text1 = tokenizer.convert_tokens_to_ids(tokenizer.tokenize(text1))
             prompt_length = len(tokenized_text1)
             tokenized_text, total_length = tokenized_text1, len(tokenized_text1)
+
+            # entity embedding
+            entity_vec = self._extract_entity_vecs(text1, tokenizer, extractor, entity_embeddings)
+
             if get_annotations:
                 text2 = r['target']
                 tokenized_text2 = tokenizer.convert_tokens_to_ids(tokenizer.tokenize(text2))
                 tokenized_text = tokenized_text1 + tokenized_text2
                 tokenized_text = tokenized_text + [self.eos_token_id]
                 total_length = len(tokenized_text)
-                if len(tokenized_text) > block_size:
+
+                entity_vec_2 = self._extract_entity_vecs(text2, tokenizer, extractor, entity_embeddings)
+                entity_vec_2 = np.vstack([entity_vec_2, np.array([0]*self.entity_dim)]) # for eos token
+
+                if total_length > block_size:
                     tokenized_text = tokenized_text[:block_size]
-                if len(tokenized_text) < block_size:
-                    tokenized_text = tokenized_text + [self.eos_token_id] * (block_size - len(tokenized_text))
+                    entity_vec_2 = entity_vec_2[:block_size, :]
+
+                if total_length <= block_size:
+                    len_diff = block_size - total_length
+                    tokenized_text = tokenized_text + [self.eos_token_id] * len_diff
+                    pad_vec = np.array([[0] * self.entity_dim] * len_diff)
+                    entity_vec_2 = np.vstack([entity_vec_2,pad_vec])
+
+                entity_vec = np.vstack([entity_vec, entity_vec_2])
+
             if self.print_count > 0:
                 print('example: ', text1 + text2 if get_annotations else text1)
                 self.print_count = self.print_count - 1
-            return (tokenized_text, prompt_length, total_length)
+            return (tokenized_text, prompt_length, total_length, entity_vec)
 
         self.examples = data.apply(create_example, axis=1).to_list()
         print('Saving ', len(self.examples), ' examples')
@@ -124,7 +153,7 @@ class KGTSVDataset(Dataset):
         return len(self.examples)
 
     def __getitem__(self, item):
-        return torch.tensor(self.examples[item][0]), self.examples[item][1], self.examples[item][2]
+        return torch.tensor(self.examples[item][0]), self.examples[item][1], self.examples[item][2], torch.tensor(self.examples[item][3])
 
     def get_example_text(self, index):
         return self.data['prompt'][index]
@@ -143,3 +172,27 @@ class KGTSVDataset(Dataset):
 
     def save(self, filename):
         self.data.to_csv(filename, sep='\t')
+
+    def _extract_entity_vecs(
+            self,
+            text,
+            tokenizer,
+            extractor,
+            embeddings,
+    ):
+        tokens = tokenizer.tokenize(text)
+        extracted_entities = extractor.process_wn(text)['token2synset']
+
+        entity_vec = []
+        if not extracted_entities:
+            length = len(tokens)
+            return np.array([[0] * self.entity_dim] * length)
+        for t in tokens:
+            entities = extracted_entities.get(t, None)
+            if entities:
+                # if multiple entities, take average
+                vec_ = np.array([embeddings.get(e) for e in entities]).mean(axis=0)
+            else:
+                vec_ = np.array([0] * self.entity_dim)
+            entity_vec.append(vec_)
+        return np.array(entity_vec)

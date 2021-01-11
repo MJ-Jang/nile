@@ -50,15 +50,15 @@ class KnowledgeExtractor:
         # indexs = tokenizer.convert_tokens_to_ids(tokens)
 
         for token in set(tokens):
-            token = self.tokenizer.convert_tokens_to_string(token).strip()
-            if token in set(string.punctuation):
+            token_new = self.tokenizer.convert_tokens_to_string(token).strip()
+            if token_new in set(string.punctuation):
                 continue
-            if filter_stopwords and token in self.stopwords:
+            if filter_stopwords and token_new in self.stopwords:
                 continue
-            if ignore_length > 0 and len(token) <= ignore_length:
+            if ignore_length > 0 and len(token_new) <= ignore_length:
                 continue
 
-            synsets = wn.synsets(token)
+            synsets = wn.synsets(token_new)
             wn18synset_names = list()
             triplets = list()
             for synset in synsets:
@@ -112,10 +112,10 @@ class KnowledgeExtractor:
         nltk.download('wordnet')
 
 
-# extractor = KnowledgeExtractor(
-#     "retrieve_knowledge/wordnet-mlj12-definitions.txt",
-#     "retrieve_knowledge/wordnet-mlj12-train.txt",
-# )
-#
-# outp = extractor.process_wn('I want to go to the hospital')
-# outp['token2synset']
+extractor = KnowledgeExtractor(
+    "retrieve_knowledge/wordnet-mlj12-definitions.txt",
+    "retrieve_knowledge/wordnet-mlj12-train.txt",
+)
+
+outp = extractor.process_wn('I want to go to the hospital')
+outp['token2synset']
