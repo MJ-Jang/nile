@@ -124,7 +124,8 @@ def train(args, train_dataset, model, tokenizer):
             batch = batch[:, :max_length]
             inputs, labels = (batch, batch.clone().detach())
             entity_vecs = entity_vecs[:, :max_length]
-
+            print(batch.size())
+            print(entity_vecs.size())
             inputs = inputs.to(args.device)
             labels = labels.to(args.device)
             entity_vecs = entity_vecs.to(args.device)
