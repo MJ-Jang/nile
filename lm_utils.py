@@ -131,7 +131,7 @@ class KGTSVDataset(Dataset):
                     tokenized_text = tokenized_text[:block_size]
                     entity_vec_2 = entity_vec_2[:block_size, :]
 
-                if total_length <= block_size:
+                if total_length < block_size:
                     len_diff = block_size - total_length
                     tokenized_text = tokenized_text + [self.eos_token_id] * len_diff
                     pad_vec = np.array([[0] * self.entity_dim] * len_diff)
