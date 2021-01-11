@@ -123,6 +123,7 @@ def train(args, train_dataset, model, tokenizer):
             max_length = torch.max(total_lengths).item()
             batch = batch[:, :max_length]
             inputs, labels = (batch, batch.clone().detach())
+            entity_vecs = entity_vecs[:, :max_length]
 
             inputs = inputs.to(args.device)
             labels = labels.to(args.device)
