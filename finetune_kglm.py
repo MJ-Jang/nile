@@ -124,8 +124,7 @@ def train(args, train_dataset, model, tokenizer):
             batch = batch[:, :max_length]
             inputs, labels = (batch, batch.clone().detach())
             entity_vecs = entity_vecs[:, :max_length]
-            print(batch.size())
-            print(entity_vecs.size())
+
             inputs = inputs.to(args.device)
             labels = labels.to(args.device)
             entity_vecs = entity_vecs.to(args.device)
@@ -133,6 +132,9 @@ def train(args, train_dataset, model, tokenizer):
             for idx in range(len(prompt_lengths)):
                 labels[idx, :prompt_lengths[idx]] = cross_entropy_ignore_index
             model.train()
+
+            outputs = model(inputs, entity_vecs=entity_vecs)
+            print(outputs.logits.size())
             outputs = model(inputs, labels=labels, entity_vecs=entity_vecs)
             loss = outputs[0]  # model outputs are always tuple in transformers (see doc)
 
