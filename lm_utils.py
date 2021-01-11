@@ -226,7 +226,7 @@ class KGTSVDataset2(Dataset):
         return len(self.data)
 
     def __getitem__(self, item):
-        r = self.data[item]
+        r = self.data.iloc[item]
 
         def create_example(r):
             text1 = '{} {} '.format(r['input'], EXP_TOKEN)
