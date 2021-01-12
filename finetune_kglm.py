@@ -196,6 +196,8 @@ def sample_sequence(model, length, context, entity_vecs, device='cpu', eos_token
     context = context.unsqueeze(0)
     generated = context
     past = None
+
+    entity_vecs = entity_vecs.to(device)
     entity_vecs = entity_vecs.unsqueeze(0)
     entity_dim = entity_vecs.size(-1)
     with torch.no_grad():
