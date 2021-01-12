@@ -198,10 +198,10 @@ def sample_sequence(model, length, context, entity_vecs, device='cpu', eos_token
     past = None
 
     entity_vecs = entity_vecs.to(device)
-    entity_vecs = entity_vecs
     entity_dim = entity_vecs.size(-1)
+
     with torch.no_grad():
-        for _ in tqdm(range(length)):
+        for _ in range(length):
             #inputs = {'input_ids': context}
             #output, past = model(**inputs, past=past)
             inputs = {'input_ids': generated, 'entity_vecs': entity_vecs}
@@ -211,7 +211,8 @@ def sample_sequence(model, length, context, entity_vecs, device='cpu', eos_token
             next_token = torch.argmax(next_token_logits)
             # add generated
             generated = torch.cat((generated, next_token.view(1,1)), dim=1)
-            entity_vecs = torch.cat((entity_vecs, torch.FloatTensor([0]*entity_dim)).unsqueeze(0), dim=1)
+            pad_vec = torch.FloatTensor([[0]*entity_dim]).unsqueeze(0)
+            entity_vecs = torch.cat((entity_vecs, pad_vec), dim=1)
             if next_token.item() == eos_token_id:
                 break
             context = next_token.view(1,1)
