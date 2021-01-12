@@ -201,12 +201,12 @@ def sample_sequence(model, length, context, entity_vecs, device='cpu', eos_token
     entity_vecs = entity_vecs.unsqueeze(0)
     entity_dim = entity_vecs.size(-1)
     with torch.no_grad():
-        for _ in range(length):
+        for _ in tqdm(range(length)):
             #inputs = {'input_ids': context}
             #output, past = model(**inputs, past=past)
             inputs = {'input_ids': generated, 'entity_vecs': entity_vecs}
             output = model(**inputs)
-            
+
             next_token_logits = output.logits[0, -1, :]
             next_token = torch.argmax(next_token_logits)
             # add generated
