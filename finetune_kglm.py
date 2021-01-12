@@ -198,9 +198,8 @@ def sample_sequence(model, length, context, entity_vecs, device='cpu', eos_token
     past = None
 
     entity_vecs = entity_vecs.to(device)
-    entity_vecs = entity_vecs.unsqueeze(0)
+    entity_vecs = entity_vecs
     entity_dim = entity_vecs.size(-1)
-    print(entity_vecs.size())
     with torch.no_grad():
         for _ in tqdm(range(length)):
             #inputs = {'input_ids': context}
