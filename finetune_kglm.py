@@ -211,7 +211,7 @@ def sample_sequence(model, length, context, entity_vecs, device='cpu', eos_token
             next_token = torch.argmax(next_token_logits)
             # add generated
             generated = torch.cat((generated, next_token.view(1,1)), dim=1)
-            pad_vec = torch.FloatTensor([[0]*entity_dim]).unsqueeze(0)
+            pad_vec = torch.FloatTensor([[0]*entity_dim]).unsqueeze(0).to(device)
             entity_vecs = torch.cat((entity_vecs, pad_vec), dim=1)
             if next_token.item() == eos_token_id:
                 break
