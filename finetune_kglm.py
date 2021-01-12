@@ -205,7 +205,8 @@ def sample_sequence(model, length, context, entity_vecs, device='cpu', eos_token
             #inputs = {'input_ids': context}
             #output, past = model(**inputs, past=past)
             inputs = {'input_ids': generated, 'entity_vecs': entity_vecs}
-            output, past = model(**inputs)
+            output = model(**inputs)
+            
             next_token_logits = output.logits[0, -1, :]
             next_token = torch.argmax(next_token_logits)
             # add generated
