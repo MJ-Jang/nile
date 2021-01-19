@@ -120,7 +120,6 @@ def train(args, train_dataset, model, tokenizer):
             max_length = torch.max(total_lengths).item()
             batch = batch[:, :max_length]
             inputs, labels = (batch, batch.clone().detach())
-
             inputs = inputs.to(args.device)
             labels = labels.to(args.device)
             for idx in range(len(prompt_lengths)):
@@ -193,9 +192,7 @@ def sample_sequence(model, length, context, device='cpu', eos_token_id=None):
             #inputs = {'input_ids': context}
             #output, past = model(**inputs, past=past)
             inputs = {'input_ids': generated}
-            # output, past = model(**inputs)
-            output = model(**inputs).logits
-
+            output, past = model(**inputs)
             next_token_logits = output[0, -1, :]
             next_token = torch.argmax(next_token_logits)
             generated = torch.cat((generated, next_token.view(1,1)), dim=1)
@@ -208,7 +205,7 @@ def generate(args, model, tokenizer, prefix=""):
     if args.length < 0 and model.config.max_position_embeddings > 0:
         args.length = model.config.max_position_embeddings
     elif 0 < model.config.max_position_embeddings < args.length:
-        args.length = model.config.max_position_embeddings  # No generation bigger than model size 
+        args.length = model.config.max_position_embeddings  # No generation bigger than model size
     elif args.length < 0:
         args.length = MAX_LENGTH  # avoid infinite loop
 
@@ -236,7 +233,6 @@ def generate(args, model, tokenizer, prefix=""):
             eos_token_id=tokenizer.convert_tokens_to_ids(EOS_TOKEN),
         )
         out = out[0, len(batch):].tolist()
-
         text = tokenizer.decode(out, clean_up_tokenization_spaces=True)
         text = text.split(EOS_TOKEN)[0].strip()
         eval_dataset.add_explanation(index, text)
@@ -246,7 +242,6 @@ def generate(args, model, tokenizer, prefix=""):
     directory, filename = os.path.split(args.eval_data_file)
     model_directory, model_name = os.path.split(os.path.normpath(args.output_dir))
     output_name = os.path.join(directory, '{}_{}'.format(model_name, filename))
-    print(output_name)
     eval_dataset.save(output_name)
 
 def evaluate(args, model, tokenizer, prefix=""):
@@ -502,7 +497,7 @@ def main():
         model = model_class.from_pretrained(args.output_dir)
         model.to(args.device)
         tokenizer = tokenizer_class.from_pretrained(args.output_dir, do_lower_case=args.do_lower_case)
-        generate(args, model, tokenizer) 
+        generate(args, model, tokenizer)
 
 if __name__ == "__main__":
     main()
