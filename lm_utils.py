@@ -26,9 +26,6 @@ class TSVDataset(Dataset):
             print ('Loading features from', cached_features_file)
             with open(cached_features_file, 'rb') as handle:
                 self.examples = pickle.load(handle)
-                
-            if args.train_ratio < 1.0:
-                self.examples = data.sample(frac=args.train_ratio, random_state=args.seed).reset_index(drop=True)
             return
 
         print ('Saving features from ', file_path, ' into ', cached_features_file) 
@@ -55,7 +52,7 @@ class TSVDataset(Dataset):
 
         self.examples = data.apply(create_example, axis=1).to_list()
         if args.train_ratio < 1.0:
-            self.examples = data.sample(frac=args.train_ratio, random_state=args.seed).reset_index(drop=True)
+            self.examples = data.sample(frac=args.train_ratio, random_state=args.seed).reset_index(drop=True).tolist()
 
         print ('Saving ', len(self.examples), ' examples')
         with open(cached_features_file, 'wb') as handle:
