@@ -22,11 +22,11 @@ class TSVDataset(Dataset):
 
         if get_annotations: cached_features_file = cached_features_file + '_annotated'
 
-        if os.path.exists(cached_features_file):
-            print ('Loading features from', cached_features_file)
-            with open(cached_features_file, 'rb') as handle:
-                self.examples = pickle.load(handle)
-            return
+        # if os.path.exists(cached_features_file):
+        #     print ('Loading features from', cached_features_file)
+        #     with open(cached_features_file, 'rb') as handle:
+        #         self.examples = pickle.load(handle)
+        #     return
 
         print ('Saving features from ', file_path, ' into ', cached_features_file) 
 
@@ -51,8 +51,6 @@ class TSVDataset(Dataset):
             return (tokenized_text, prompt_length, total_length)
 
         self.examples = data.apply(create_example, axis=1).to_list()
-        if args.train_ratio < 1.0:
-            self.examples = data.sample(frac=args.train_ratio, random_state=args.seed).reset_index(drop=True).tolist()
 
         print ('Saving ', len(self.examples), ' examples')
         with open(cached_features_file, 'wb') as handle:
@@ -74,6 +72,8 @@ class TSVDataset(Dataset):
     def load_data(self, file_path, block_size, args):
         assert os.path.isfile(file_path)
         data = pd.read_csv(file_path, sep='\t', index_col='pairID')
+        if args.train_ratio < 1.0:
+            data = data.sample(frac=args.train_ratio, random_state=args.seed).reset_index(drop=True)
         print (data)
         directory, filename = os.path.split(file_path)
         cached_features_file = os.path.join(directory, 'cached_lm_{}_{}'.format(block_size, filename))
