@@ -52,7 +52,7 @@ class TSVDataset(Dataset):
 
         self.examples = data.apply(create_example, axis=1).to_list()
         if args.train_ratio < 1.0:
-            self.examples = data.sample(frac=args.train_ratio, random_state=args.seed)
+            self.examples = data.sample(frac=args.train_ratio, random_state=args.seed).reset_index(drop=True)
 
         print ('Saving ', len(self.examples), ' examples')
         with open(cached_features_file, 'wb') as handle:
@@ -308,3 +308,5 @@ class KGTSVDataset2(Dataset):
                 vec_ = np.array([0] * self.entity_dim)
             entity_vec.append(vec_)
         return np.array(entity_vec)
+
+
