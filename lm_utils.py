@@ -17,7 +17,7 @@ class TSVDataset(Dataset):
         self.print_count = 5
         self.eos_token_id = tokenizer.convert_tokens_to_ids(EOS_TOKEN)
 
-        cached_features_file, data = self.load_data(file_path, block_size)
+        cached_features_file, data = self.load_data(file_path, block_size, args)
         self.data = data
 
         if get_annotations: cached_features_file = cached_features_file + '_annotated'
@@ -51,6 +51,9 @@ class TSVDataset(Dataset):
             return (tokenized_text, prompt_length, total_length)
 
         self.examples = data.apply(create_example, axis=1).to_list()
+        if args.train_ratio < 1.0:
+            self.examples = data.sample(frac=args.train_ratio, random_state=args.seed)
+
         print ('Saving ', len(self.examples), ' examples')
         with open(cached_features_file, 'wb') as handle:
             pickle.dump(self.examples, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -68,7 +71,7 @@ class TSVDataset(Dataset):
         explanation_name = 'Generated_Explanation'
         self.data.at[self.data.index[index], explanation_name] = explanation
 
-    def load_data(self, file_path, block_size):
+    def load_data(self, file_path, block_size, args):
         assert os.path.isfile(file_path)
         data = pd.read_csv(file_path, sep='\t', index_col='pairID')
         print (data)

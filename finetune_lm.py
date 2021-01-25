@@ -356,6 +356,7 @@ def main():
 
     parser.add_argument("--data_type", default="tsv", type=str,
                         help="Dataset type")
+    parser.add_argument('--train_ratio', default=1.0, type=float)
 
     parser.add_argument('--logging_steps', type=int, default=50,
                         help="Log every X updates steps.")
