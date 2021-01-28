@@ -11,6 +11,7 @@ class ExpProcessor(DataProcessor):
 
     def get_train_examples(self, filepath, data_format="instance", to_drop=[]):
         data = pd.read_csv(filepath, index_col=self.index_col)
+        data = data.dropna(axis=0)
         data = data.sample(frac=0.3, random_state=1234)
         examples = self._create_examples(data, 'train', data_format=data_format, to_drop=to_drop)
         return examples
