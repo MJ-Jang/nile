@@ -26,6 +26,7 @@ import numpy as np
 
 from transformers.data.processors.utils import DataProcessor, InputExample, InputFeatures
 from transformers.file_utils import is_tf_available
+from tqdm import tqdm
 
 if is_tf_available():
     import tensorflow as tf
@@ -72,8 +73,9 @@ def convert_examples_to_features(examples, tokenizer,
     if examples[0].text_b is not None:
         k = len(examples[0].text_b)
     if sample_negatives:
+        print(len(examples))
         neg_indices = [np.random.choice(len(examples), size=len(examples), replace=False) for i in range(k)]
-    for (ex_index, example) in enumerate(examples):
+    for (ex_index, example) in enumerate(tqdm(examples, total=len(examples))):
         if ex_index % 10000 == 0:
             logger.info("Writing example %d" % (ex_index))
         if is_tf_dataset:
