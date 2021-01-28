@@ -139,7 +139,9 @@ def convert_examples_to_features(examples, tokenizer,
             return input_ids, attention_mask, token_type_ids
         
         input_ids, attention_mask, token_type_ids = get_indices(text_a, text_b)
+        print(f"text A: {text_a} | text B: {text_b}")
         if sample_negatives:
+            print(f"text B neg: {text_b_neg}")
             input_ids_n, attention_mask_n, token_type_ids_n = get_indices(text_a, text_b_neg)
 
         label = label_map[example.label]
