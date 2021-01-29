@@ -148,7 +148,6 @@ class KGTSVDataset(Dataset):
             return (tokenized_text, prompt_length, total_length, entity_vec)
 
         self.examples = data.apply(create_example, axis=1).to_list()
-        print(len(self.data))
         print('Saving ', len(self.examples), ' examples')
         with open(cached_features_file, 'wb') as handle:
             pickle.dump(self.examples, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -282,7 +281,7 @@ class KGTSVDataset2(Dataset):
         data = pd.read_csv(file_path, sep='\t', index_col='pairID')
         print(data)
         directory, filename = os.path.split(file_path)
-        cached_features_file = os.path.join(directory, 'cached_lm_{}_{}'.format(block_size, filename))
+        cached_features_file = os.path.join(directory, f'cached_lm_{block_size}_{filename}_{args.train_ratio}')
         return cached_features_file, data
 
     def save(self, filename):
