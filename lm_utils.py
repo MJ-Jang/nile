@@ -76,7 +76,7 @@ class TSVDataset(Dataset):
             data = data.sample(frac=args.train_ratio, random_state=args.seed).reset_index(drop=True)
         print (data)
         directory, filename = os.path.split(file_path)
-        cached_features_file = os.path.join(directory, 'cached_lm_{}_{}'.format(block_size, filename))
+        cached_features_file = os.path.join(directory, f'cached_lm_{block_size}_{filename}_{args.train_ratio}')
         return cached_features_file, data
 
     def save(self, filename):
@@ -98,7 +98,7 @@ class KGTSVDataset(Dataset):
             "retrieve_knowledge/wordnet-mlj12-train.txt",
         ) # hardcoded
 
-        cached_features_file, data = self.load_data(file_path, block_size)
+        cached_features_file, data = self.load_data(file_path, block_size, args)
         self.data = data
 
         if get_annotations: cached_features_file = cached_features_file + '_annotated'
@@ -165,12 +165,14 @@ class KGTSVDataset(Dataset):
         explanation_name = 'Generated_Explanation'
         self.data.at[self.data.index[index], explanation_name] = explanation
 
-    def load_data(self, file_path, block_size):
+    def load_data(self, file_path, block_size, args):
         assert os.path.isfile(file_path)
         data = pd.read_csv(file_path, sep='\t', index_col='pairID')
-        print(data)
+        if args.train_ratio < 1.0:
+            data = data.sample(frac=args.train_ratio, random_state=args.seed).reset_index(drop=True)
+        print (data)
         directory, filename = os.path.split(file_path)
-        cached_features_file = os.path.join(directory, 'cached_lm_{}_{}'.format(block_size, filename))
+        cached_features_file = os.path.join(directory, f'cached_lm_{block_size}_{filename}_{args.train_ratio}')
         return cached_features_file, data
 
     def save(self, filename):
