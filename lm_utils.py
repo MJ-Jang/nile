@@ -103,11 +103,11 @@ class KGTSVDataset(Dataset):
 
         if get_annotations: cached_features_file = cached_features_file + '_annotated'
 
-        if os.path.exists(cached_features_file):
-            print('Loading features from', cached_features_file)
-            with open(cached_features_file, 'rb') as handle:
-                self.examples = pickle.load(handle)
-            return
+        # if os.path.exists(cached_features_file):
+        #     print('Loading features from', cached_features_file)
+        #     with open(cached_features_file, 'rb') as handle:
+        #         self.examples = pickle.load(handle)
+        #     return
 
         print('Saving features from ', file_path, ' into ', cached_features_file)
 
