@@ -148,6 +148,7 @@ class KGTSVDataset(Dataset):
             return (tokenized_text, prompt_length, total_length, entity_vec)
 
         self.examples = data.apply(create_example, axis=1).to_list()
+        print(len(self.data))
         print('Saving ', len(self.examples), ' examples')
         with open(cached_features_file, 'wb') as handle:
             pickle.dump(self.examples, handle, protocol=pickle.HIGHEST_PROTOCOL)
