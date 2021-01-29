@@ -225,7 +225,7 @@ class KGTSVDataset2(Dataset):
         self.get_annotations = get_annotations
         self.block_size = block_size
 
-        cached_features_file, data = self.load_data(file_path, block_size)
+        cached_features_file, data = self.load_data(file_path, block_size, args)
         self.data = data
 
     def __len__(self):
@@ -276,7 +276,7 @@ class KGTSVDataset2(Dataset):
         explanation_name = 'Generated_Explanation'
         self.data.at[self.data.index[index], explanation_name] = explanation
 
-    def load_data(self, file_path, block_size):
+    def load_data(self, file_path, block_size, args):
         assert os.path.isfile(file_path)
         data = pd.read_csv(file_path, sep='\t', index_col='pairID')
         print(data)
