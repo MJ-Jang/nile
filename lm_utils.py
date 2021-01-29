@@ -279,6 +279,8 @@ class KGTSVDataset2(Dataset):
     def load_data(self, file_path, block_size, args):
         assert os.path.isfile(file_path)
         data = pd.read_csv(file_path, sep='\t', index_col='pairID')
+        if args.train_ratio < 1.0:
+            data = data.sample(frac=args.train_ratio, random_state=args.seed).reset_index(drop=True)
         print(data)
         directory, filename = os.path.split(file_path)
         cached_features_file = os.path.join(directory, f'cached_lm_{block_size}_{filename}_{args.train_ratio}')
